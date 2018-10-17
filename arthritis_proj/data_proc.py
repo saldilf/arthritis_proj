@@ -10,7 +10,12 @@ Handles the primary functions
 
 import sys
 import argparse
+import numpy as np
 
+IO_ERROR = 2
+
+SUCCESS = 0
+DEF_DATA_FILE = "data.csv"
 
 def warning(*objs):
     """Writes a message to stderr."""
@@ -50,27 +55,28 @@ def parse_cmdline(argv):
 
     # initialize the parser object:
     parser = argparse.ArgumentParser()
-    # parser.add_argument("-i", "--input_rates", help="The location of the input rates file",
-    #                     default=DEF_IRATE_FILE, type=read_input_rates)
-    parser.add_argument("-n", "--no_attribution", help="Whether to include attribution",
-                        action='store_false')
+    parser.add_argument("-c", "--csv_data_file", help="The location of the csv file with data to analyze",
+                        default=DEF_DATA_FILE)
+    #parser.add_argument("-n", "--no_attribution", help="Whether to include attribution",
+    #                   action='store_false')
     args = None
     try:
         args = parser.parse_args(argv)
+        args.csv_data = np.loadtxt(fname=args.csv_data_file, delimiter=',' )
     except IOError as e:
         warning("Problems reading file:", e)
         parser.print_help()
-        return args, 2
+        return args, IO_ERROR
 
-    return args, 0
+    return args, SUCCESS
 
 
 def main(argv=None):
     args, ret = parse_cmdline(argv)
-    if ret != 0:
+    if ret != SUCCESS:
         return ret
-    print(canvas(args.no_attribution))
-    return 0  # success
+    print(args.csv_data_file)
+    return SUCCESS  # success
 
 
 if __name__ == "__main__":
