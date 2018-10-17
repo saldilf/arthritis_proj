@@ -11,6 +11,7 @@ Handles the primary functions
 import sys
 import argparse
 import numpy as np
+import os
 
 IO_ERROR = 2
 
@@ -44,6 +45,28 @@ def canvas(with_attribution=True):
         quote += "\n\t- Adapted from Henry David Thoreau"
     return quote
 
+def data_analysis(data_array):
+    print(type(data_array))
+    print(data_array)
+    num_patients, num_days = data_array.shape
+
+    data_stats = np.zeros((num_patients, 3))
+
+    data_stats[:, 0] = np.mean(data_array, axis = 1)
+    data_stats[:, 1] = np.max(data_array, axis = 1)
+    data_stats[:, 2] = np.min(data_array, axis = 1)
+
+    return data_stats
+#   Find min, max, avg for each of given array- one line per patient
+#   Parameters
+#    ----------
+#   data_array : numpy array of patient data
+#
+#   Returns
+#    --------
+#   data_stats : numpy array
+
+
 
 def parse_cmdline(argv):
     """
@@ -75,7 +98,12 @@ def main(argv=None):
     args, ret = parse_cmdline(argv)
     if ret != SUCCESS:
         return ret
-    print(args.csv_data_file)
+    data_stats = data_analysis(args.csv_data)
+    base_out_fname = os.path.basename(args.csv_data_file)
+    base_out_fname = os.path.splitext(base_out_fname)[0] + '_stats'
+    out_fname = base_out_fname + '.csv'
+    np.savetxt(out_fname, data_stats, delimiter=',')
+    print("Wrote file: {}".format(out_fname))
     return SUCCESS  # success
 
 
